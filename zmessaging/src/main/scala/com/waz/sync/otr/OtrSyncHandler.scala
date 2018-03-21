@@ -49,7 +49,7 @@ import scala.concurrent.Future.successful
 trait OtrSyncHandler {
   def postOtrMessage(conv: ConversationData, message: GenericMessage): Future[Either[ErrorResponse, Date]]
   def postOtrMessage(convId: ConvId, remoteId: RConvId, message: GenericMessage, recipients: Option[Set[UserId]] = None, nativePush: Boolean = true): Future[Either[ErrorResponse, Date]]
-  def uploadAssetDataV3(data: LocalData, key: Option[AESKey], mime: Mime = Mime.Default, retention: Retention = Retention.Persistent): CancellableFuture[Either[ErrorResponse, RemoteData]]
+  def uploadAssetDataV3(data: LocalData, key: Option[AESKey], mime: Mime = Mime.Default, retention: Retention): CancellableFuture[Either[ErrorResponse, RemoteData]]
   def postSessionReset(convId: ConvId, user: UserId, client: ClientId): Future[SyncResult]
   def broadcastMessage(message: GenericMessage, retry: Int = 0, previous: EncryptedContent = EncryptedContent.Empty): Future[Either[ErrorResponse, Date]]
 }

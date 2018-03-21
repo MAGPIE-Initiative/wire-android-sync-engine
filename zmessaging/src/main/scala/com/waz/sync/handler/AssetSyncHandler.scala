@@ -46,7 +46,7 @@ class AssetSyncHandler(cache:   CacheService,
         warn(s"asset has already been uploaded, skipping: $asset")
         CancellableFuture.successful(Right(None))
       case (Some(asset), Some(data)) =>
-        otrSync.uploadAssetDataV3(data, if (public) None else Some(AESKey()), asset.mime).flatMap {
+        otrSync.uploadAssetDataV3(data, if (public) None else Some(AESKey()), asset.mime, retention).flatMap {
           case Right(remoteData) => CancellableFuture.lift(assets.updateAsset(asset.id, _.copyWithRemoteData(remoteData)).map {
             Right(_)
           })
