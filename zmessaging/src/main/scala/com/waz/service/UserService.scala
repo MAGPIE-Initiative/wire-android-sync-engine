@@ -170,7 +170,7 @@ class UserServiceImpl(val selfUserId:    UserId,
     }
   }
 
-  def userSignal(id: UserId): Signal[UserData] =
+  override def userSignal(id: UserId): Signal[UserData] =
     usersStorage.optSignal(id) flatMap {
       case None =>
         sync.syncUsers(id)

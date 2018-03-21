@@ -25,6 +25,7 @@ import com.waz.model.AssetStatus.UploadInProgress
 import com.waz.model._
 import com.waz.service.assets.AssetService
 import com.waz.sync.client.AssetClient
+import com.waz.sync.client.AssetClient.Retention
 import com.waz.sync.otr.OtrSyncHandler
 import com.waz.threading.{CancellableFuture, Threading}
 import com.waz.znet.ZNetClient._
@@ -36,7 +37,7 @@ class AssetSyncHandler(cache:   CacheService,
 
   import Threading.Implicits.Background
 
-  def uploadAssetData(assetId: AssetId, public: Boolean = false): ErrorOrResponse[Option[AssetData]] =
+  def uploadAssetData(assetId: AssetId, public: Boolean = false, retention: Retention): ErrorOrResponse[Option[AssetData]] =
     CancellableFuture.lift(assets.updateAsset(assetId, _.copy(status = UploadInProgress)).zip(assets.getLocalData(assetId))) flatMap {
       case (Some(asset), Some(data)) if data.length > AssetData.MaxAllowedAssetSizeInBytes =>
         debug(s"Local data too big. Data length: ${data.length}, max size: ${AssetData.MaxAllowedAssetSizeInBytes}, local data: $data, asset: $asset")

@@ -25,11 +25,14 @@ import com.waz.ZLog.ImplicitTag._
 import com.waz.ZLog._
 import com.waz.api.impl.ErrorResponse
 import com.waz.cache.{CacheEntry, Expiration, LocalData}
+import com.waz.content.MembersStorage
 import com.waz.model.otr.ClientId
 import com.waz.model.{Mime, _}
+import com.waz.service.UserService
 import com.waz.sync.client.OtrClient._
 import com.waz.threading.{CancellableFuture, Threading}
 import com.waz.utils.JsonDecoder.{apply => _, _}
+import com.waz.utils.events.Signal
 import com.waz.utils.{IoUtils, JsonDecoder, JsonEncoder, LoggedTry}
 import com.waz.znet.ContentEncoder._
 import com.waz.znet.Response._
@@ -87,6 +90,22 @@ object AssetClient {
 
 
   val AssetsV3Path = "/assets/v3"
+
+  private def checkConv(convId: ConvId, members: MembersStorage, users: UserService) =
+    members
+      .activeMembers(convId)
+      .flatMap(p => Signal.sequence(p.map(users.userSignal).toSeq:_*)
+        .map(_.exists(_.teamId.isDefined)))
+
+  def retentionPolicy(teamId: Option[TeamId], convData: ConversationData, members: MembersStorage, users: UserService): Signal[Retention] =
+    if (teamId.isDefined || convData.team.isDefined) {
+      checkConv(convData.id, members, users).map {
+        case true => Retention.Eternal
+        case false => Retention.Persistent
+      }
+    } else {
+      Signal.const(Retention.Persistent)
+    }
 
   sealed abstract class Retention(val value: String)
   object Retention {

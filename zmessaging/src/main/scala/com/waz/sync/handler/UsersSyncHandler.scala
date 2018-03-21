@@ -26,6 +26,7 @@ import com.waz.service.{UserService, UserServiceImpl}
 import com.waz.service.assets.AssetService
 import com.waz.service.images.ImageAssetGenerator
 import com.waz.sync.SyncResult
+import com.waz.sync.client.AssetClient.Retention
 import com.waz.sync.client.UsersClient
 import com.waz.sync.otr.OtrSyncHandler
 import com.waz.threading.Threading
@@ -82,9 +83,9 @@ class UsersSyncHandler(assetSync: AssetSyncHandler,
     Some(asset) <- assets.getAssetData(assetId)
     preview     <- imageGenerator.generateSmallProfile(asset).future
     _           <- assets.mergeOrCreateAsset(preview) //needs to be in storage for other steps to find it
-    res         <- assetSync.uploadAssetData(preview.id, public = true).future flatMap {
+    res         <- assetSync.uploadAssetData(preview.id, public = true, retention = Retention.Eternal).future flatMap {
       case Right(uploadedPreview) =>
-        assetSync.uploadAssetData(assetId, public = true).future flatMap {
+        assetSync.uploadAssetData(assetId, public = true, retention = Retention.Eternal).future flatMap {
           case Right(uploaded) => for {
             asset <- assets.getAssetData(assetId)
             res   <- updatedSelfToSyncResult(usersClient.updateSelf(UserInfo(id, picture = Some(Seq(uploadedPreview, uploaded).flatten))))
