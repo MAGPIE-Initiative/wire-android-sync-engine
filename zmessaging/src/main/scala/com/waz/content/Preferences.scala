@@ -354,7 +354,8 @@ object UserPreferences {
   lazy val SelectedConvId          = PrefKey[Option[ConvId]]      ("selected_conv_id")
   lazy val SpotifyRefreshToken     = PrefKey[Option[RefreshToken]]("spotify_refresh_token")
   lazy val ShouldSyncConversations = PrefKey[Boolean]             ("should_sync_conversations", customDefault = true)
-  lazy val ShouldSyncInitial       = PrefKey[Boolean]             ("should_sync_teams", customDefault = true) // TODO: try to change the name to should_sync_initial
+                                                                    //increment number to perform slow sync
+  lazy val ShouldSyncInitial       = PrefKey[Boolean]             ("should_sync_initial_1", customDefault = true)
 
   lazy val OtrLastPrekey             = PrefKey[Int]        ("otr_last_prekey_id")
   lazy val ClientRegVersion          = PrefKey[Int]        ("otr_client_reg_version")
